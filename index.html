@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calculatrice Biamortier V1 (Lancement appli 02/26)</title>
+    <title>Calculatrice Biamortier V1 (Lancement Appli 02/26)</title>
     <link rel="icon" type="image/png" href="icon.png">
     <style>
         :root {
@@ -864,7 +864,7 @@
                     </div>
                     
                     <div class="form-group" style="margin-bottom:0;">
-                        <label for="userRef">Référence Chantier</label>
+                        <label for="userRef">Référence Chantier <span class="required-star">*</span></label>
                         <input type="text" id="userRef" placeholder="Ex: Résidence Les Lilas" style="padding:10px; font-size:0.9rem;">
                     </div>
                 </div>
@@ -975,20 +975,146 @@
         }
     };
 
-    // NOUVEAU : BIBLIOTHÈQUE DE COULEURS
+    // INTÉGRATION DU NUANCIER COMPLET
     const NUANCIER_COMPLET = [
-        { nom: "Blanc", hex: "#f9fafb" },
-        { nom: "Gris Clair", hex: "#d1d5db" },
-        { nom: "Gris Naturel", hex: "#9ca3af" },
-        { nom: "Gris Foncé", hex: "#4b5563" },
-        { nom: "Anthracite", hex: "#374151" },
-        { nom: "Noir", hex: "#111827" },
-        { nom: "Ton Pierre", hex: "#d6ceb4" },
-        { nom: "Beige", hex: "#f5f5dc" },
-        { nom: "Jaune Sable", hex: "#eab308" },
-        { nom: "Rouge Brique", hex: "#b91c1c" },
-        { nom: "Brun", hex: "#78350f" }
+        { cat: "Standards", name: "SUPER BLANC", l: 86.00, c: 3.50, h: 73.00 },
+        { cat: "Standards", name: "BLANC", l: 82.00, c: 5.50, h: 85.00 },
+        { cat: "Standards", name: "TON PIERRE", l: 76.50, c: 21.00, h: 89.00 },
+        { cat: "Standards", name: "GRIS CLAIR", l: 60.00, c: 3.00, h: 92.00 },
+
+        { cat: "Noirs & Gris", name: "50% BL 50% GR", l: 50.00, c: 20.00, h: 0.00 },
+        { cat: "Noirs & Gris", name: "SBN62.5", l: 52.00, c: 0.50, h: 6.00 },
+        { cat: "Noirs & Gris", name: "GN62.5", l: 51.00, c: 2.00, h: 73.00 },
+        { cat: "Noirs & Gris", name: "SBN60", l: 50.00, c: 2.00, h: 37.00 },
+        { cat: "Noirs & Gris", name: "SBN125", l: 41.50, c: 1.00, h: 276.00 }, 
+        { cat: "Noirs & Gris", name: "GN60", l: 46.00, c: 2.50, h: 64.00 },
+        { cat: "Noirs & Gris", name: "GN125", l: 43.50, c: 0.50, h: 2.00 },
+        { cat: "Noirs & Gris", name: "TPN250", l: 41.50, c: 1.00, h: 299.00 },
+        { cat: "Noirs & Gris", name: "GN250", l: 39.50, c: 0.50, h: 319.00 },
+        { cat: "Noirs & Gris", name: "SBN250", l: 37.50, c: 2.00, h: 293.00 }, 
+        { cat: "Noirs & Gris", name: "GA125", l: 26.50, c: 0.50, h: 351.00 }, 
+        { cat: "Noirs & Gris", name: "SBA125", l: 33.50, c: 2.50, h: 275.00 },
+        { cat: "Noirs & Gris", name: "SBN500", l: 32.50, c: 1.00, h: 355.00 },
+        { cat: "Noirs & Gris", name: "SBA250", l: 28.50, c: 2.00, h: 284.00 }, 
+        { cat: "Noirs & Gris", name: "SBA375", l: 25.00, c: 2.00, h: 282.00 },
+        { cat: "Noirs & Gris", name: "GA250", l: 24.50, c: 2.00, h: 276.00 },
+        { cat: "Noirs & Gris", name: "GA450R50", l: 20.50, c: 1.50, h: 348.00 }, 
+        { cat: "Noirs & Gris", name: "SBA500", l: 16.00, c: 1.00, h: 310.00 }, 
+        { cat: "Noirs & Gris", name: "GN500", l: 29.50, c: 2.00, h: 43.00 }, 
+        { cat: "Noirs & Gris", name: "GA500", l: 16.50, c: 0.50, h: 325.00 }, 
+
+        { cat: "Jaunes", name: "SBJ8.25", l: 79.00, c: 10.50, h: 85.00 }, 
+        { cat: "Jaunes", name: "SBJ30", l: 74.00, c: 19.50, h: 87.00 }, 
+        { cat: "Jaunes", name: "SBJ62.5", l: 74.50, c: 26.50, h: 92.00 }, 
+        { cat: "Jaunes", name: "SBJ20S15", l: 66.00, c: 19.50, h: 76.00 }, 
+        { cat: "Jaunes", name: "75% TP 25% BL", l: 68.50, c: 29.50, h: 99.00 }, 
+        { cat: "Jaunes", name: "SBJ125", l: 62.50, c: 30.50, h: 83.00 }, 
+        { cat: "Jaunes", name: "SBJ250", l: 68.00, c: 41.00, h: 83.00 }, 
+        { cat: "Jaunes", name: "GJ15", l: 61.50, c: 9.00, h: 94.00 }, 
+        { cat: "Jaunes", name: "GJ30", l: 61.50, c: 12.50, h: 93.00 }, 
+        { cat: "Jaunes", name: "GJ125", l: 54.00, c: 26.00, h: 87.00 }, 
+        { cat: "Jaunes", name: "GJ20S15", l: 58.50, c: 13.00, h: 83.00 }, 
+        { cat: "Jaunes", name: "GJ250", l: 60.50, c: 31.50, h: 85.00 }, 
+        { cat: "Jaunes", name: "SBJ500", l: 61.00, c: 40.50, h: 80.00 }, 
+        { cat: "Jaunes", name: "SBJ375", l: 56.50, c: 38.50, h: 81.00 }, 
+        { cat: "Jaunes", name: "GJ500", l: 53.00, c: 35.00, h: 84.00 }, 
+        { cat: "Jaunes", name: "SBJ62.5N62.5", l: 51.00, c: 11.00, h: 94.00 }, 
+        { cat: "Jaunes", name: "SBJ120N30", l: 67.50, c: 29.00, h: 94.00 }, 
+        { cat: "Jaunes", name: "GJ62.5N62.5", l: 48.00, c: 9.50, h: 94.00 }, 
+
+        { cat: "Marron", name: "GJ10S15", l: 55.00, c: 12.00, h: 76.00 }, 
+        { cat: "Marron", name: "GS15J10", l: 46.00, c: 15.00, h: 87.00 }, 
+        { cat: "Marron", name: "GS15", l: 60.00, c: 10.00, h: 75.00 }, 
+        { cat: "Marron", name: "GN90S35", l: 37.50, c: 6.00, h: 79.00 }, 
+        { cat: "Marron", name: "GJ100R150", l: 46.00, c: 24.50, h: 47.00 }, 
+        { cat: "Marron", name: "GS150N100", l: 45.50, c: 13.50, h: 70.00 }, 
+        { cat: "Marron", name: "GS200N150", l: 45.50, c: 16.50, h: 69.00 }, 
+        { cat: "Marron", name: "GJ90R90N70", l: 44.50, c: 15.00, h: 52.00 }, 
+        { cat: "Marron", name: "GJ10N115", l: 41.00, c: 2.00, h: 66.00 }, 
+        { cat: "Marron", name: "SBJ90R70N90", l: 46.50, c: 12.50, h: 52.00 }, 
+        { cat: "Marron", name: "SBJ90R90N70", l: 40.00, c: 15.50, h: 46.00 }, 
+        { cat: "Marron", name: "GJ180R180N140", l: 39.00, c: 14.50, h: 54.00 }, 
+        { cat: "Marron", name: "GJ20N200", l: 37.50, c: 1.50, h: 52.00 }, 
+        { cat: "Marron", name: "GJ15N150", l: 37.50, c: 1.50, h: 51.00 }, 
+        { cat: "Marron", name: "GS150A100", l: 37.00, c: 7.50, h: 69.00 }, 
+        { cat: "Marron", name: "GS125N250R125", l: 37.50, c: 11.00, h: 49.00 }, 
+        { cat: "Marron", name: "SBJ180R180N140", l: 45.50, c: 16.00, h: 45.00 }, 
+        { cat: "Marron", name: "GS125A125", l: 33.50, c: 4.00, h: 73.00 }, 
+        { cat: "Marron", name: "GS300N200", l: 33.00, c: 13.00, h: 65.00 }, 
+        { cat: "Marron", name: "SBJ180N180R140", l: 33.00, c: 13.50, h: 50.00 }, 
+        { cat: "Marron", name: "GS200A150", l: 32.50, c: 5.50, h: 74.00 }, 
+        { cat: "Marron", name: "GN416S84", l: 27.50, c: 3.50, h: 57.00 }, 
+        { cat: "Marron", name: "GS250A250", l: 30.00, c: 7.00, h: 72.00 }, 
+        { cat: "Marron", name: "GS300N100A100", l: 28.00, c: 8.50, h: 68.00 }, 
+        { cat: "Marron", name: "GS300A200", l: 27.00, c: 7.00, h: 67.00 }, 
+        { cat: "Marron", name: "GJ100R200N50A150", l: 24.50, c: 7.50, h: 37.00 }, 
+        { cat: "Marron", name: "GS150R150A200", l: 23.00, c: 7.00, h: 42.00 }, 
+        { cat: "Marron", name: "GJ100R200A200", l: 21.50, c: 6.50, h: 37.00 }, 
+
+        { cat: "Rouges", name: "GR150J100", l: 51.00, c: 27.00, h: 47.00 }, 
+        { cat: "Rouges", name: "SBR125", l: 51.50, c: 27.00, h: 28.00 }, 
+        { cat: "Rouges", name: "GR125", l: 52.00, c: 21.50, h: 30.00 }, 
+        { cat: "Rouges", name: "GR150S100", l: 54.50, c: 31.50, h: 45.00 }, 
+        { cat: "Rouges", name: "SBR250", l: 48.50, c: 26.50, h: 27.00 }, 
+        { cat: "Rouges", name: "GR100N25", l: 38.00, c: 18.50, h: 39.00 }, 
+        { cat: "Rouges", name: "SBR375", l: 45.00, c: 31.50, h: 27.00 }, 
+        { cat: "Rouges", name: "GR375", l: 35.00, c: 27.50, h: 30.00 }, 
+        { cat: "Rouges", name: "GR20", l: 36.50, c: 19.00, h: 29.00 }, 
+        { cat: "Rouges", name: "GR250", l: 41.50, c: 25.50, h: 29.00 }, 
+        { cat: "Rouges", name: "GJ250R250", l: 36.50, c: 27.00, h: 40.00 }, 
+        { cat: "Rouges", name: "GR250S250", l: 41.50, c: 29.00, h: 39.00 }, 
+        { cat: "Rouges", name: "SBR500", l: 34.00, c: 30.00, h: 30.00 }, 
+        { cat: "Rouges", name: "GS200R300", l: 37.50, c: 29.50, h: 36.00 }, 
+        { cat: "Rouges", name: "GR500", l: 29.00, c: 26.50, h: 33.00 }, 
+
+        { cat: "Saumon", name: "SBS15J20", l: 71.00, c: 27.50, h: 76.00 }, 
+        { cat: "Saumon", name: "SBS62.5", l: 61.00, c: 25.50, h: 61.00 }, 
+        { cat: "Saumon", name: "SBS125", l: 54.00, c: 33.00, h: 58.00 }, 
+        { cat: "Saumon", name: "GS30R30", l: 54.00, c: 16.50, h: 50.00 }, 
+        { cat: "Saumon", name: "GS62.5", l: 55.00, c: 25.00, h: 82.00 }, 
+        { cat: "Saumon", name: "GS125", l: 50.00, c: 23.50, h: 63.00 }, 
+        { cat: "Saumon", name: "GS250", l: 44.50, c: 30.00, h: 60.00 }, 
+        { cat: "Saumon", name: "SBS250", l: 51.50, c: 37.00, h: 56.00 }, 
+        { cat: "Saumon", name: "SBS35N90", l: 48.00, c: 6.00, h: 73.00 }, 
+        { cat: "Saumon", name: "GJ45R45N35", l: 47.50, c: 13.00, h: 55.00 }, 
+        { cat: "Saumon", name: "SBJ45R45N35", l: 46.50, c: 14.00, h: 48.00 }, 
+        { cat: "Saumon", name: "SBS500", l: 51.50, c: 40.50, h: 54.00 }, 
+        { cat: "Saumon", name: "GS500", l: 42.50, c: 31.50, h: 56.00 }, 
+        { cat: "Saumon", name: "SBS250R250", l: 39.00, c: 28.00, h: 41.00 }, 
+        { cat: "Saumon", name: "GS375R125", l: 40.00, c: 30.50, h: 46.00 }, 
+        { cat: "Saumon", name: "SBS125A125", l: 33.50, c: 3.50, h: 75.00 }, 
+
+        { cat: "Lie de vin", name: "GR125N100S25", l: 31.50, c: 11.50, h: 38.00 }, 
+        { cat: "Lie de vin", name: "GR200N50", l: 36.50, c: 19.00, h: 32.00 }, 
+        { cat: "Lie de vin", name: "SBR250N125", l: 35.00, c: 14.00, h: 28.00 }, 
+        { cat: "Lie de vin", name: "GS100R300N100", l: 37.00, c: 19.50, h: 38.00 }, 
+        { cat: "Lie de vin", name: "GR300S100N100", l: 27.50, c: 19.50, h: 38.00 }, 
+        { cat: "Lie de vin", name: "GR200S200N100", l: 40.00, c: 23.00, h: 48.00 }, 
+        { cat: "Lie de vin", name: "GR300N200", l: 31.50, c: 13.50, h: 30.00 }, 
+        { cat: "Lie de vin", name: "GR416N84", l: 35.50, c: 21.50, h: 30.00 } 
+
+        { cat: "Autres", name: "SBV60 (Vert)", l: 68.00, c: 6.50, h: 111.00 },
+        { cat: "Autres", name: "SBV125 (Vert)", l: 65.50, c: 9.00, h: 121.00 },
+        { cat: "Autres", name: "SBB125 (Bleu)", l: 63.00, c: 3.50, h: 219.00 },
+        { cat: "Autres", name: "SBV250 (Vert)", l: 62.00, c: 11.00, h: 128.00 },
+        { cat: "Autres", name: "SBB250 (Vert)", l: 58.50, c: 9.00, h: 241.00 },
     ];
+
+    // FONCTION POUR CONVERTIR LCH EN RGB/HEX POUR L'AFFICHAGE DU NUANCIER
+    function convertLchToHex(l, c, h) {
+        const canvas = document.createElement('canvas');
+        canvas.width = 1; canvas.height = 1;
+        const ctx = canvas.getContext('2d');
+        ctx.fillStyle = `lch(${l}% ${c} ${h})`;
+        ctx.fillRect(0, 0, 1, 1);
+        const [r, g, b] = ctx.getImageData(0, 0, 1, 1).data;
+        return `#${(1 << 24 | r << 16 | g << 8 | b).toString(16).slice(1)}`;
+    }
+
+    // AJOUT DE L'HEXADECIMAL À CHAQUE COULEUR DU NUANCIER
+    NUANCIER_COMPLET.forEach(item => {
+        item.hex = convertLchToHex(item.l, item.c, item.h);
+    });
 
     // DOM Elements
     const categorySelect = document.getElementById('category');
@@ -1030,14 +1156,22 @@
             categorySelect.add(option);
         }
 
-        // Initialisation Nuancier de Couleurs
+        // Initialisation Nuancier de Couleurs avec Optgroups
         const colorSelect = document.getElementById('userColor');
-        NUANCIER_COMPLET.forEach(couleur => {
-            let option = document.createElement('option');
-            option.value = couleur.nom; 
-            option.text = couleur.nom;
-            option.dataset.hex = couleur.hex; // Sauvegarde du code hexadécimal pour l'aperçu visuel
-            colorSelect.add(option);
+        const categories = [...new Set(NUANCIER_COMPLET.map(item => item.cat))];
+
+        categories.forEach(cat => {
+            let optgroup = document.createElement('optgroup');
+            optgroup.label = cat;
+            
+            NUANCIER_COMPLET.filter(item => item.cat === cat).forEach(couleur => {
+                let option = document.createElement('option');
+                option.value = couleur.name; 
+                option.text = couleur.name;
+                option.dataset.hex = couleur.hex; 
+                optgroup.appendChild(option);
+            });
+            colorSelect.appendChild(optgroup);
         });
     };
 
@@ -1045,7 +1179,7 @@
     // 3. LOGIQUE D'INTERACTION
     // ---------------------------------------------------------
     
-    // NOUVEAU : MISE À JOUR PASTILLE DE COULEUR
+    // MISE À JOUR PASTILLE DE COULEUR
     function updateColorPreview() {
         const select = document.getElementById('userColor');
         const preview = document.getElementById('colorPreview');
@@ -1553,8 +1687,8 @@
         const color = document.getElementById('userColor').value.trim(); 
         const refChantier = document.getElementById('userRef').value.trim();
 
-        if (!company || !contact || !dealer || !color) {
-            alert("Veuillez remplir tous les champs obligatoires (Entreprise, Contact, Négociant, Couleur) !");
+        if (!company || !contact || !dealer || !color || !refChantier) {
+            alert("Veuillez remplir tous les champs obligatoires (Entreprise, Contact, Négociant, Couleur, Référence Chantier) !");
             document.querySelector('.contact-form-wrapper').scrollIntoView({behavior: 'smooth'});
             return; 
         }
@@ -1603,7 +1737,7 @@
             
             subjectRef += ` - ${formattedProduct}`;
             productDetails = `Produit : ${formattedProduct}\n`;
-            productDetails += `Couleur demandée : ${color.toUpperCase()}\n`; // Ajout Couleur
+            productDetails += `Couleur demandée : ${color.toUpperCase()}\n`;
             productDetails += `Surface à jointer : ${surface} m²\n`;
             productDetails += `Dimensions plaquette : ${document.getElementById('jointL').value}x${document.getElementById('jointH').value} mm\n`;
             productDetails += `Joint : ${document.getElementById('jointW').value}mm (Largeur) x ${document.getElementById('jointD').value}mm (Profondeur)\n`;
@@ -1628,7 +1762,7 @@
 
             subjectRef += ` - ${prodName}`;
             productDetails = `Produit : ${prodName}\n`;
-            productDetails += `Couleur demandée : ${color.toUpperCase()}\n`; // Ajout Couleur
+            productDetails += `Couleur demandée : ${color.toUpperCase()}\n`;
             productDetails += `Gamme brique : ${cat}\n`;
             productDetails += `Format Brique : ${refName}\n`;
             if(currentMortarMode === 'surface') {
