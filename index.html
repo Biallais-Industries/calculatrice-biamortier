@@ -1059,7 +1059,6 @@
         { cat: "Rouges", name: "GR100N25", l: 38.00, c: 18.50, h: 39.00 }, 
         { cat: "Rouges", name: "SBR375", l: 45.00, c: 31.50, h: 27.00 }, 
         { cat: "Rouges", name: "GR375", l: 35.00, c: 27.50, h: 30.00 }, 
-        { cat: "Rouges", name: "GR20", l: 36.50, c: 19.00, h: 29.00 }, 
         { cat: "Rouges", name: "GR250", l: 41.50, c: 25.50, h: 29.00 }, 
         { cat: "Rouges", name: "GJ250R250", l: 36.50, c: 27.00, h: 40.00 }, 
         { cat: "Rouges", name: "GR250S250", l: 41.50, c: 29.00, h: 39.00 }, 
@@ -1101,14 +1100,19 @@
         { cat: "Autres", name: "SBB250", l: 58.50, c: 9.00, h: 241.00 }
     ];
 
-    // FONCTION POUR CONVERTIR LCH EN RGB/HEX POUR L'AFFICHAGE DU NUANCIER
+    // --- NOUVEAU : CONVERSION OPTIMISÉE LCH -> HEX ---
+    // On crée un SEUL canvas qu'on réutilise pour ne pas saturer la mémoire (surtout sur mobile)
+    const colorCanvas = document.createElement('canvas');
+    colorCanvas.width = 1; 
+    colorCanvas.height = 1;
+    const colorCtx = colorCanvas.getContext('2d');
+
     function convertLchToHex(l, c, h) {
-        const canvas = document.createElement('canvas');
-        canvas.width = 1; canvas.height = 1;
-        const ctx = canvas.getContext('2d');
-        ctx.fillStyle = `lch(${l}% ${c} ${h})`;
-        ctx.fillRect(0, 0, 1, 1);
-        const [r, g, b] = ctx.getImageData(0, 0, 1, 1).data;
+        colorCtx.clearRect(0, 0, 1, 1);
+        colorCtx.fillStyle = "#cccccc"; // Couleur de secours au cas où lch() ne soit pas supporté
+        colorCtx.fillStyle = `lch(${l}% ${c} ${h})`;
+        colorCtx.fillRect(0, 0, 1, 1);
+        const [r, g, b] = colorCtx.getImageData(0, 0, 1, 1).data;
         return `#${(1 << 24 | r << 16 | g << 8 | b).toString(16).slice(1)}`;
     }
 
