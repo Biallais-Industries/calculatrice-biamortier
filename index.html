@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calculatrice Biamortier V1 (Lancement Appli 02/26)</title>
+    <title>Calculatrice Biamortier V1 (Lancement 02/2026)</title>
     <link rel="icon" type="image/png" href="icon.png">
     <style>
         :root {
@@ -533,7 +533,7 @@
         </div>
         <div class="header-text">
             <h1>Calculatrice Matériaux</h1>
-            <p>Guide technique & logistique</p>
+            <p>Guide technique & logistique - V1 (Lancement 02/2026)</p>
         </div>
     </header>
 
@@ -975,7 +975,7 @@
         }
     };
 
-    // INTÉGRATION DU NUANCIER COMPLET
+    // INTÉGRATION DU NUANCIER COMPLET AVEC LA CATÉGORIE "AUTRES" À LA FIN
     const NUANCIER_COMPLET = [
         { cat: "Standards", name: "SUPER BLANC", l: 86.00, c: 3.50, h: 73.00 },
         { cat: "Standards", name: "BLANC", l: 82.00, c: 5.50, h: 85.00 },
@@ -1091,13 +1091,14 @@
         { cat: "Lie de vin", name: "GR300S100N100", l: 27.50, c: 19.50, h: 38.00 }, 
         { cat: "Lie de vin", name: "GR200S200N100", l: 40.00, c: 23.00, h: 48.00 }, 
         { cat: "Lie de vin", name: "GR300N200", l: 31.50, c: 13.50, h: 30.00 }, 
-        { cat: "Lie de vin", name: "GR416N84", l: 35.50, c: 21.50, h: 30.00 } 
+        { cat: "Lie de vin", name: "GR416N84", l: 35.50, c: 21.50, h: 30.00 },
 
-        { cat: "Autres", name: "SBV60 (Vert)", l: 68.00, c: 6.50, h: 111.00 },
-        { cat: "Autres", name: "SBV125 (Vert)", l: 65.50, c: 9.00, h: 121.00 },
-        { cat: "Autres", name: "SBB125 (Bleu)", l: 63.00, c: 3.50, h: 219.00 },
-        { cat: "Autres", name: "SBV250 (Vert)", l: 62.00, c: 11.00, h: 128.00 },
-        { cat: "Autres", name: "SBB250 (Vert)", l: 58.50, c: 9.00, h: 241.00 },
+        // CATÉGORIE "AUTRES" DÉPLACÉE ICI
+        { cat: "Autres", name: "SBV60", l: 68.00, c: 6.50, h: 111.00 },
+        { cat: "Autres", name: "SBV125", l: 65.50, c: 9.00, h: 121.00 },
+        { cat: "Autres", name: "SBB125", l: 63.00, c: 3.50, h: 219.00 },
+        { cat: "Autres", name: "SBV250", l: 62.00, c: 11.00, h: 128.00 },
+        { cat: "Autres", name: "SBB250", l: 58.50, c: 9.00, h: 241.00 }
     ];
 
     // FONCTION POUR CONVERTIR LCH EN RGB/HEX POUR L'AFFICHAGE DU NUANCIER
@@ -1677,7 +1678,7 @@
     }
     
     // ---------------------------------------------------------
-    // 5. FONCTION MAIL DEVIS (MISE A JOUR V31)
+    // 5. FONCTION MAIL DEVIS (MISE A JOUR V1)
     // ---------------------------------------------------------
     function sendQuoteEmail() {
         // --- VALIDATION DU FORMULAIRE DE CONTACT ---
@@ -1756,7 +1757,6 @@
 
             const surface = document.getElementById('surface').value;
             
-            // --- LOGIQUE M5 vs M10 (V31) ---
             const isCoated = document.getElementById('isCoated').checked;
             const prodName = isCoated ? "BIAMORTIER M10 (Gamme Coated)" : "BIAMORTIER M5 (Standard)";
 
