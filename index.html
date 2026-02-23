@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calculatrice Biamortier V31 (M5/M10 + Couleur)</title>
+    <title>Calculatrice Biamortier V1 (Lancement appli 02/26)</title>
     <link rel="icon" type="image/png" href="icon.png">
     <style>
         :root {
@@ -203,7 +203,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            background-color: #ffffff; /* FOND BLANC */
+            background-color: #ffffff;
             border-radius: 12px;
             border: 1px dashed #e2e8f0;
             padding: 15px;
@@ -226,13 +226,11 @@
             opacity: 0;
             transition: opacity 0.5s ease;
             filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1));
-            mix-blend-mode: multiply; /* Enlève le blanc du JPG */
+            mix-blend-mode: multiply;
         }
         
         /* --- REGLAGE FIN DES TAILLES (DUAL MODE) --- */
-        
         .visual-wrapper.dual-mode #img-primary {
-            /* Sac de Gauche (Biajoint) */
             height: 160px; 
             width: auto;
             max-width: 48%;
@@ -240,7 +238,6 @@
         }
 
         .visual-wrapper.dual-mode #img-secondary {
-            /* Sac de Droite (Easy Joint) */
             height: 135px;
             width: auto;
             max-width: 48%;
@@ -341,7 +338,6 @@
             font-size: 1.2rem;
         }
 
-        /* Styles spécifiques Béton et Joint */
         #concrete-section .dim-input label { color: var(--concrete-color); }
         #joint-section .dim-input label { color: var(--joint-color); }
         
@@ -377,7 +373,6 @@
             box-shadow: 0 6px 12px rgba(142, 68, 173, 0.3);
         }
         
-        /* STYLE BOUTON EMAIL */
         .btn-email {
             width: 100%;
             background: linear-gradient(to right, #27ae60, #2ecc71);
@@ -409,7 +404,6 @@
 
         .btn-calc:active { transform: scale(0.98); }
 
-        /* CONTACT FORM STYLE */
         .contact-form-wrapper {
             background: #f8fafc;
             border: 2px solid #e2e8f0;
@@ -429,7 +423,6 @@
         }
         .required-star { color: #e74c3c; margin-left:3px; }
 
-        /* RESULTATS */
         #result-card {
             background-color: #fff;
             border-radius: 16px;
@@ -519,6 +512,16 @@
             .main-type-btn { font-size: 0.8rem; padding: 10px 2px; }
         }
 
+        /* NOUVEAU : Style de la pastille de couleur */
+        .color-preview-circle {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            border: 2px solid #e2e8f0;
+            background-color: transparent;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
     </style>
 </head>
 <body>
@@ -852,7 +855,12 @@
 
                     <div class="form-group" style="margin-bottom:15px;">
                         <label for="userColor" style="color:var(--accent-color);">Couleur de joint souhaitée <span class="required-star">*</span></label>
-                        <input type="text" id="userColor" placeholder="Ex: Gris Clair, Blanc, Ton Pierre..." style="padding:10px; font-size:0.9rem; border-color:var(--accent-color);">
+                        <div style="display: flex; gap: 15px; align-items: center;">
+                            <select id="userColor" onchange="updateColorPreview()" style="flex: 1; padding:10px; font-size:0.9rem; border-color:var(--accent-color); border-radius: 12px; background-color: #fff; cursor: pointer;">
+                                <option value="">-- Sélectionnez une couleur --</option>
+                            </select>
+                            <div id="colorPreview" class="color-preview-circle"></div>
+                        </div>
                     </div>
                     
                     <div class="form-group" style="margin-bottom:0;">
@@ -967,6 +975,21 @@
         }
     };
 
+    // NOUVEAU : BIBLIOTHÈQUE DE COULEURS
+    const NUANCIER_COMPLET = [
+        { nom: "Blanc", hex: "#f9fafb" },
+        { nom: "Gris Clair", hex: "#d1d5db" },
+        { nom: "Gris Naturel", hex: "#9ca3af" },
+        { nom: "Gris Foncé", hex: "#4b5563" },
+        { nom: "Anthracite", hex: "#374151" },
+        { nom: "Noir", hex: "#111827" },
+        { nom: "Ton Pierre", hex: "#d6ceb4" },
+        { nom: "Beige", hex: "#f5f5dc" },
+        { nom: "Jaune Sable", hex: "#eab308" },
+        { nom: "Rouge Brique", hex: "#b91c1c" },
+        { nom: "Brun", hex: "#78350f" }
+    ];
+
     // DOM Elements
     const categorySelect = document.getElementById('category');
     const referenceSelect = document.getElementById('reference');
@@ -999,17 +1022,46 @@
 
     // Init
     window.onload = function() {
+        // Initialisation Gammes
         for (let key in db) {
             let option = document.createElement('option');
             option.value = key;
             option.text = key;
             categorySelect.add(option);
         }
+
+        // Initialisation Nuancier de Couleurs
+        const colorSelect = document.getElementById('userColor');
+        NUANCIER_COMPLET.forEach(couleur => {
+            let option = document.createElement('option');
+            option.value = couleur.nom; 
+            option.text = couleur.nom;
+            option.dataset.hex = couleur.hex; // Sauvegarde du code hexadécimal pour l'aperçu visuel
+            colorSelect.add(option);
+        });
     };
 
     // ---------------------------------------------------------
     // 3. LOGIQUE D'INTERACTION
     // ---------------------------------------------------------
+    
+    // NOUVEAU : MISE À JOUR PASTILLE DE COULEUR
+    function updateColorPreview() {
+        const select = document.getElementById('userColor');
+        const preview = document.getElementById('colorPreview');
+        const selectedOption = select.options[select.selectedIndex];
+        
+        if (selectedOption.value && selectedOption.dataset.hex) {
+            preview.style.backgroundColor = selectedOption.dataset.hex;
+            preview.style.borderColor = "transparent";
+            preview.style.transform = "scale(1.05)";
+        } else {
+            preview.style.backgroundColor = 'transparent';
+            preview.style.borderColor = "#e2e8f0";
+            preview.style.transform = "scale(1)";
+        }
+    }
+
     function switchMainType(type) {
         currentMainType = type;
         resultCard.style.display = 'none';
@@ -1419,7 +1471,6 @@
                     const volJoint = surfJoint * W;
                     calculatedWeightM2 = Math.ceil(volJoint * catData.densityFactor);
                     
-                    // Pour le custom, on garde le x2 par défaut car pas de data spécifique
                     if (isDouble) calculatedWeightM2 *= 2;
                 }
 
@@ -1499,7 +1550,7 @@
         const company = document.getElementById('userCompany').value.trim();
         const contact = document.getElementById('userContact').value.trim();
         const dealer = document.getElementById('userDealer').value.trim();
-        const color = document.getElementById('userColor').value.trim(); // NEW (Couleur)
+        const color = document.getElementById('userColor').value.trim(); 
         const refChantier = document.getElementById('userRef').value.trim();
 
         if (!company || !contact || !dealer || !color) {
