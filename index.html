@@ -1537,8 +1537,45 @@
 
                 if (refValue !== "custom") {
                     const product = catData.items[refValue];
-                    let ratio = targetJoint / product.jointRef;
-                    
+                    const refJ = product.jointRef / 1000;
+                    const newJ = targetJoint / 1000;
+
+                    let ratio = targetJoint / product.jointRef; // Fallback par défaut
+                    let finalBricksM2 = product.bricksM2;
+
+                    const dimsRaw = product.name.match(/[\d,]+/g);
+                    if (dimsRaw && dimsRaw.length >= 2) {
+                        const dims = dimsRaw.map(d => parseFloat(d.replace(',', '.')) / 100);
+
+                        let bestDiff = Infinity;
+                        let finalL = 0, finalH = 0;
+
+                        // 1. Identifier les dimensions de la face visible
+                        for (let i = 0; i < dims.length; i++) {
+                            for (let j = i + 1; j < dims.length; j++) {
+                                let testBricks = 1 / ((dims[i] + refJ) * (dims[j] + refJ));
+                                let diff = Math.abs(testBricks - product.bricksM2);
+                                if (diff < bestDiff) {
+                                    bestDiff = diff;
+                                    finalL = dims[i];
+                                    finalH = dims[j];
+                                }
+                            }
+                        }
+
+                        if (finalL > 0 && finalH > 0) {
+                            // 2. Calculer l'ancienne et la nouvelle surface nette du joint
+                            const oldJointArea = 1 - (product.bricksM2 * finalL * finalH);
+                            finalBricksM2 = 1 / ((finalL + newJ) * (finalH + newJ));
+                            const newJointArea = 1 - (finalBricksM2 * finalL * finalH);
+
+                            // 3. Le multiplicateur exact est le rapport entre les deux surfaces
+                            if (oldJointArea > 0) {
+                                ratio = newJointArea / oldJointArea;
+                            }
+                        }
+                    }
+
                     let baseWeight = product.weightM2;
                     
                     if (isDouble) {
@@ -1550,7 +1587,7 @@
                     }
 
                     calculatedWeightM2 = Math.ceil(baseWeight * ratio);
-                    calculatedBricksM2 = product.bricksM2;
+                    calculatedBricksM2 = finalBricksM2;
 
                 } else {
                     const L_mm = parseFloat(document.getElementById('custL').value);
@@ -1562,7 +1599,8 @@
                     calculatedBricksM2 = 1 / ((L + J) * (H + J));
                     const surfJoint = 1 - (calculatedBricksM2 * L * H);
                     const volJoint = surfJoint * W;
-                    calculatedWeightM2 = Math.ceil(volJoint * catData.densityFactor);
+                    const customLossFactor = 1.15; // 15% de perte sur la saisie manuelle
+                    calculatedWeightM2 = Math.ceil(volJoint * catData.densityFactor * customLossFactor);
                     
                     if (isDouble) calculatedWeightM2 *= 2;
                 }
@@ -1574,7 +1612,7 @@
                 consumptionPerM2 = calculatedWeightM2;
                 showConsom = true;
 
-                infoText = `Calcul basé sur un joint moyen de <strong>${targetJoint}</strong>mm.<br>Inclut les coefficients de perte.`;
+                infoText = `Calcul basé sur un joint de <strong>${targetJoint}</strong>mm.<br>Ratio géométrique et coefficient de perte appliqués.`;
                 document.getElementById('brick-result-line').style.display = 'block';
 
             } else {
