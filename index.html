@@ -518,6 +518,40 @@
             line-height: 1.4;
         }
 
+        /* --- SECTION À PROPOS / LÉGAL --- */
+        .about-footer {
+            margin-top: 60px;
+            padding: 30px;
+            background-color: #f8fafc;
+            border-top: 1px solid #e2e8f0;
+            border-radius: 0 0 20px 20px;
+        }
+
+        .about-footer h3 {
+            font-size: 0.9rem;
+            color: #475569;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .legal-notice {
+            font-size: 0.75rem;
+            color: #64748b;
+            line-height: 1.6;
+            text-align: justify;
+        }
+
+        .legal-notice strong {
+            color: #1e293b;
+            display: block;
+            margin-bottom: 5px;
+            font-size: 0.85rem;
+        }
+
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
 
@@ -894,6 +928,25 @@
             </div>
         </div>
     </div>
+
+    <footer class="about-footer">
+        <h3>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="16" x2="12" y2="12"></line>
+                <line x1="12" y1="8" x2="12.01" y2="8"></line>
+            </svg>
+            À propos
+        </h3>
+        <div class="legal-notice">
+            <strong>Avertissement Légal et Propriété Intellectuelle</strong>
+            Le présent outil, son code, son design et ses bases de données sont la propriété exclusive de 
+            <strong>Biallais Industries</strong>. Cette application est concédée pour un usage strictement 
+            interne et encadré. Il est formellement interdit de copier, modifier, extraire, distribuer 
+            ou détourner cet outil de son usage initial sans autorisation écrite préalable. Toute infraction 
+            à ces règles constitue un acte de contrefaçon et fera l'objet de poursuites pénales et civiles.
+        </div>
+    </footer>
 </div>
 
 <script>
@@ -993,7 +1046,7 @@
         }
     };
 
-    // NOUVEAU NUANCIER COMPLET AVEC LES VALEURS LCH MISES A JOUR
+    // NOUVEAU NUANCIER COMPLET
     const NUANCIER_COMPLET = [
         { cat: "Standards", name: "SUPER BLANC", l: 79.50, c: 7.50, h: 91.00 },
         { cat: "Standards", name: "BLANC", l: 74.50, c: 10.50, h: 85.00 },
@@ -1067,8 +1120,7 @@
     ];
 
     const colorCanvas = document.createElement('canvas');
-    colorCanvas.width = 1; 
-    colorCanvas.height = 1;
+    colorCanvas.width = 1; colorCanvas.height = 1;
     const colorCtx = colorCanvas.getContext('2d');
 
     function convertLchToHex(l, c, h) {
@@ -1089,9 +1141,7 @@
         FIELDS_TO_SAVE.forEach(id => {
             const element = document.getElementById(id);
             const savedValue = localStorage.getItem('biamortier_' + id);
-            if (savedValue) {
-                element.value = savedValue;
-            }
+            if (savedValue) element.value = savedValue;
             element.addEventListener('input', () => {
                 localStorage.setItem('biamortier_' + id, element.value);
             });
@@ -1137,25 +1187,16 @@
     // Init
     window.onload = function() {
         setupLocalPersistence();
-
         for (let key in db) {
-            let option = document.createElement('option');
-            option.value = key;
-            option.text = key;
-            categorySelect.add(option);
+            categorySelect.add(new Option(key, key));
         }
-
         const colorSelect = document.getElementById('userColor');
         const categories = [...new Set(NUANCIER_COMPLET.map(item => item.cat))];
-
         categories.forEach(cat => {
             let optgroup = document.createElement('optgroup');
             optgroup.label = cat;
-            
             NUANCIER_COMPLET.filter(item => item.cat === cat).forEach(couleur => {
-                let option = document.createElement('option');
-                option.value = couleur.name; 
-                option.text = couleur.name;
+                let option = new Option(couleur.name, couleur.name);
                 option.dataset.hex = couleur.hex; 
                 optgroup.appendChild(option);
             });
@@ -1163,15 +1204,10 @@
         });
     };
 
-    // ---------------------------------------------------------
-    // 3. LOGIQUE D'INTERACTION
-    // ---------------------------------------------------------
-    
     function updateColorPreview() {
         const select = document.getElementById('userColor');
         const preview = document.getElementById('colorPreview');
         const selectedOption = select.options[select.selectedIndex];
-        
         if (selectedOption.value && selectedOption.dataset.hex) {
             preview.style.backgroundColor = selectedOption.dataset.hex;
             preview.style.borderColor = "transparent";
@@ -1186,31 +1222,25 @@
     function switchMainType(type) {
         currentMainType = type;
         resultCard.style.display = 'none';
-
         btnMainMortar.classList.remove('active');
         btnMainConcrete.classList.remove('active-concrete');
         btnMainJoint.classList.remove('active-joint');
-        
         mortarSection.classList.add('hidden-field');
         concreteSection.classList.add('hidden-field');
         jointSection.classList.add('hidden-field');
-        
-        btnAction.classList.remove('concrete-mode');
-        btnAction.classList.remove('joint-mode');
+        btnAction.classList.remove('concrete-mode', 'joint-mode');
 
         if (type === 'mortar') {
             btnMainMortar.classList.add('active');
             mortarSection.classList.remove('hidden-field');
             btnAction.innerText = "CALCULER MA COMMANDE";
             updateReferences(); 
-
         } else if (type === 'concrete') {
             btnMainConcrete.classList.add('active-concrete');
             concreteSection.classList.remove('hidden-field');
             btnAction.classList.add('concrete-mode');
             btnAction.innerText = "CALCULER BÉTON";
             updateBagVisual(); 
-
         } else {
             btnMainJoint.classList.add('active-joint');
             jointSection.classList.remove('hidden-field');
@@ -1239,7 +1269,7 @@
             coatedAlert.style.display = "none";
         }
     }
-    
+
     function switchConcreteMode(mode) {
         currentConcreteMode = mode;
         resultCard.style.display = 'none';
@@ -1247,7 +1277,6 @@
         const volFields = document.getElementById('concrete-vol-fields');
         const btnDims = document.getElementById('btnConcreteDims');
         const btnVol = document.getElementById('btnConcreteVol');
-
         if (mode === 'dims') {
             dimsFields.classList.remove('hidden-field');
             volFields.classList.add('hidden-field');
@@ -1262,199 +1291,113 @@
     }
 
     function updateReferences() {
-        if (currentMainType !== 'mortar') {
-            updateBagVisual();
-            return;
+        if (currentMainType !== 'mortar' || currentMortarMode === 'volume') {
+            updateBagVisual(); return;
         }
-        if (currentMortarMode === 'volume') {
-            updateBagVisual();
-            return;
-        }
-
         resultCard.style.display = 'none';
         const selectedCatKey = categorySelect.value;
         const categoryData = db[selectedCatKey];
         coatedCheck.checked = false;
         referenceSelect.innerHTML = '<option value="">-- Sélectionner dimensions --</option>';
         customDiv.style.display = 'none';
-
         if (selectedCatKey && categoryData) {
             referenceSelect.disabled = false;
-            if (selectedCatKey.includes("TERRE CUITE")) {
-                coatedAlert.style.display = "block";
-            } else {
-                coatedAlert.style.display = "none";
-            }
-            const defJoint = categoryData.items[0].jointRef; 
-            jointInput.value = defJoint;
-            
+            coatedAlert.style.display = selectedCatKey.includes("TERRE CUITE") ? "block" : "none";
+            jointInput.value = categoryData.items[0].jointRef;
             categoryData.items.forEach((item, index) => {
-                let option = document.createElement('option');
-                option.value = index;
-                option.text = item.name;
-                referenceSelect.add(option);
+                referenceSelect.add(new Option(item.name, index));
             });
-
             if (categoryData.allowCustom) {
-                let option = document.createElement('option');
-                option.value = "custom";
-                option.text = "➔ AUTRE FORMAT (Saisie manuelle)";
-                option.style.fontWeight = "800";
-                option.style.color = "#d35400";
-                referenceSelect.add(option);
+                let opt = new Option("➔ AUTRE FORMAT (Saisie manuelle)", "custom");
+                opt.style.fontWeight = "800"; opt.style.color = "#d35400";
+                referenceSelect.add(opt);
             }
         } else {
-             referenceSelect.disabled = true;
-             coatedAlert.style.display = "none";
+            referenceSelect.disabled = true; coatedAlert.style.display = "none";
         }
         updateBagVisual();
     }
 
     function updateBagVisual() {
         const isCoated = coatedCheck.checked;
-        
         imgPrimary.classList.remove('visible');
-        imgSecondary.classList.remove('visible');
-        imgSecondary.classList.add('hidden');
+        imgSecondary.classList.remove('visible', 'hidden');
         visualWrapper.classList.remove('dual-mode');
-
         if (currentMainType === 'concrete') {
-             setTimeout(() => {
+            setTimeout(() => {
                 imgPrimary.src = IMG_SAC_BETON;
-                imgPrimary.alt = "Sac Tradi Béton";
-                visualContainer.style.backgroundColor = "#ffffff";
                 visualContainer.style.border = "1px solid #bdc3c7";
                 badgeCoated.style.display = "none";
                 imgPrimary.classList.add('visible'); 
-             }, 100);
-             return;
+            }, 100); return;
         }
-
         if (currentMainType === 'joint') {
-             setTimeout(() => {
+            setTimeout(() => {
                 imgPrimary.src = IMG_SAC_BIAJOINT;
-                imgPrimary.alt = "Sac Biajoint";
                 imgSecondary.src = IMG_SAC_EASYJOINT;
-                imgSecondary.alt = "Sac Easy Joint";
-                
-                imgSecondary.classList.remove('hidden');
                 visualWrapper.classList.add('dual-mode'); 
-
-                visualContainer.style.backgroundColor = "#ffffff";
                 visualContainer.style.border = "1px solid #8e44ad";
                 badgeCoated.style.display = "none";
-                
-                imgPrimary.classList.add('visible'); 
-                imgSecondary.classList.add('visible');
-             }, 100);
-             return;
+                imgPrimary.classList.add('visible'); imgSecondary.classList.add('visible');
+            }, 100); return;
         }
-
         const selectedCatKey = categorySelect.value;
         if (!selectedCatKey) {
-             visualContainer.style.backgroundColor = "#ffffff"; 
              visualContainer.style.border = "1px dashed #e2e8f0";
-             badgeCoated.style.display = "none";
-             return;
+             badgeCoated.style.display = "none"; return;
         }
-
         setTimeout(() => {
-            if (selectedCatKey.includes("BIACOLOR") || isCoated) {
-                imgPrimary.src = IMG_SAC_BIACOLOR;
-                visualContainer.style.backgroundColor = "#ffffff";
-                if (isCoated) {
-                    badgeCoated.style.display = "block";
-                    visualContainer.style.border = "2px solid #d69e2e";
-                } else {
-                    badgeCoated.style.display = "none";
-                    visualContainer.style.border = "1px dashed #e2e8f0";
-                }
-            } else if (selectedCatKey.includes("TERRE CUITE")) {
-                imgPrimary.src = IMG_SAC_TERRE_CUITE;
-                visualContainer.style.backgroundColor = "#ffffff";
-                badgeCoated.style.display = "none";
-                visualContainer.style.border = "1px dashed #e2e8f0";
+            imgPrimary.src = (selectedCatKey.includes("BIACOLOR") || isCoated) ? IMG_SAC_BIACOLOR : IMG_SAC_TERRE_CUITE;
+            if (isCoated) {
+                badgeCoated.style.display = "block"; visualContainer.style.border = "2px solid #d69e2e";
+            } else {
+                badgeCoated.style.display = "none"; visualContainer.style.border = "1px dashed #e2e8f0";
             }
             imgPrimary.classList.add('visible'); 
         }, 100);
     }
 
     function handleReferenceChange() {
-        const val = referenceSelect.value;
-        if (val === "custom") {
-            customDiv.style.display = 'block';
-            resetJointDefault();
-        } else {
-            customDiv.style.display = 'none';
-            resetJointDefault();
-        }
+        customDiv.style.display = referenceSelect.value === "custom" ? 'block' : 'none';
+        const cat = categorySelect.value;
+        if(cat && db[cat]) jointInput.value = db[cat].items[0].jointRef;
         resultCard.style.display = 'none';
     }
 
-    function resetJointDefault() {
-        const cat = categorySelect.value;
-        if(cat && db[cat]) {
-             jointInput.value = db[cat].items[0].jointRef;
-        }
-    }
-    
     function updateJointInfo() {
         resultCard.style.display='none';
         const type = document.getElementById('jointProductType').value;
-        const desc = document.getElementById('joint-usage-desc');
-        
-        if(type === 'biajoint') {
-            desc.innerHTML = "<strong>Usage :</strong> Rejointoiement traditionnel à la main.";
-        } else {
-            desc.innerHTML = "<strong>Usage :</strong> Rejointoiement à la poche à douille ou à la machine Easyfast.";
-        }
+        document.getElementById('joint-usage-desc').innerHTML = type === 'biajoint' ? 
+            "<strong>Usage :</strong> Rejointoiement traditionnel à la main." : 
+            "<strong>Usage :</strong> Rejointoiement à la poche à douille ou à la machine Easyfast.";
     }
 
-    // --- ALGORITHMES LOGISTIQUES ---
     function solveBigBags(weight, maxBagSize = 1400) {
-        let remaining = weight;
-        let solution = { 1400: 0, 1000: 0, 700: 0 };
-
+        let remaining = weight, solution = { 1400: 0, 1000: 0, 700: 0 };
         if (maxBagSize === 1400) {
-            solution[1400] = Math.floor(remaining / 1400);
-            remaining = remaining % 1400;
+            solution[1400] = Math.floor(remaining / 1400); remaining %= 1400;
             if (remaining > 0) {
                 if (remaining <= 700) solution[700]++;
                 else if (remaining <= 1000) solution[1000]++;
                 else solution[1400]++; 
             }
         } else {
-            solution[1000] = Math.floor(remaining / 1000);
-            remaining = remaining % 1000;
-             if (remaining > 0) {
-                if (remaining <= 700) solution[700]++;
-                else solution[1000]++;
+            solution[1000] = Math.floor(remaining / 1000); remaining %= 1000;
+            if (remaining > 0) {
+                if (remaining <= 700) solution[700]++; else solution[1000]++;
             }
         }
         return solution;
     }
 
     function solvePallets(weight) {
-        const bagWeight = 25;
-        const bagsPerPallet = 56;
-        const totalBags = Math.ceil(weight / bagWeight);
-        const pallets = Math.floor(totalBags / bagsPerPallet);
-        const extraBags = totalBags % bagsPerPallet;
-        return { totalBags, pallets, extraBags };
+        const totalBags = Math.ceil(weight / 25);
+        const pallets = Math.floor(totalBags / 56);
+        return { totalBags, pallets, extraBags: totalBags % 56 };
     }
 
-    // ---------------------------------------------------------
-    // 4. FONCTION CALCUL PRINCIPALE
-    // ---------------------------------------------------------
     function calculate() {
-        let totalMortarKg = 0;
-        let totalVolume = 0;
-        let totalBricks = 0;
-        let infoText = "";
-        let consumptionPerM2 = 0; 
-        let showConsom = false;
-        
-        let maxBagSize = 1400;
+        let totalMortarKg = 0, totalVolume = 0, totalBricks = 0, infoText = "", consumptionPerM2 = 0, showConsom = false, maxBagSize = 1400;
 
         if (currentMainType === 'joint') {
              const L_mm = parseFloat(document.getElementById('jointL').value);
@@ -1464,35 +1407,14 @@
              const Surf = parseFloat(document.getElementById('jointSurface').value);
              const productType = document.getElementById('jointProductType').value;
 
-             if(!L_mm || !H_mm || !W_mm || !D_mm || !Surf) {
-                 alert("Veuillez remplir toutes les dimensions et la surface."); return;
-             }
-             
-             if(productType === 'easyjoint') {
-                 maxBagSize = 1000;
-                 infoText = "Calcul spécifique Easy Joint (Sacs max 1000kg).<br>";
-             } else {
-                 infoText = "Calcul standard Biajoint.<br>";
-             }
-
-             const L = L_mm / 1000; const H = H_mm / 1000; const W = W_mm / 1000; const D = D_mm / 1000;
-             const areaUnitWithJoint = (L + W) * (H + W);
-             const nbUnitsPerM2 = 1 / areaUnitWithJoint;
-             const areaBricksOnly = nbUnitsPerM2 * (L * H);
-             const areaJointOnly = 1 - areaBricksOnly;
-             const volM3PerM2 = areaJointOnly * D;
-             const volTotalM3 = volM3PerM2 * Surf;
-             const volTotalLitres = volTotalM3 * 1000; 
-
-             const realConsumptionCoeff = 2.11; 
-             
-             totalMortarKg = volTotalLitres * realConsumptionCoeff;
-             totalVolume = volTotalLitres;
-             
-             consumptionPerM2 = totalMortarKg / Surf;
-             showConsom = true;
-
-             infoText += "Calibré sur retours chantier (Coef perte/compactage inclus).";
+             if(!L_mm || !H_mm || !W_mm || !D_mm || !Surf) { alert("Remplissez tout."); return; }
+             if(productType === 'easyjoint') maxBagSize = 1000;
+             const L = L_mm/1000, H = H_mm/1000, W = W_mm/1000, D = D_mm/1000;
+             const areaJointOnly = 1 - ( (1/((L+W)*(H+W))) * (L*H) );
+             totalVolume = areaJointOnly * D * Surf * 1000;
+             totalMortarKg = totalVolume * 2.11;
+             consumptionPerM2 = totalMortarKg / Surf; showConsom = true;
+             infoText = "Calibré sur retours chantier (Coef perte inclus).";
              document.getElementById('brick-result-line').style.display = 'none';
         }
         else if (currentMainType === 'concrete') {
@@ -1500,300 +1422,91 @@
                 const L_cm = parseFloat(document.getElementById('concL').value);
                 const W_cm = parseFloat(document.getElementById('concW').value);
                 const H_cm = parseFloat(document.getElementById('concH').value);
-                if (!L_cm || !W_cm || !H_cm) { alert("Veuillez remplir Longueur, Largeur et Épaisseur en cm."); return; }
+                if (!L_cm || !W_cm || !H_cm) { alert("Remplissez tout."); return; }
                 totalVolume = (L_cm * W_cm * H_cm) / 1000; 
             } else {
                 let inputVal = parseFloat(document.getElementById('inputConcreteVol').value);
-                let unit = document.getElementById('unitConcreteVol').value;
-                if (!inputVal || inputVal <= 0) { alert("Volume invalide."); return; }
-                if (unit === 'm3') totalVolume = inputVal * 1000;
-                else totalVolume = inputVal;
+                totalVolume = document.getElementById('unitConcreteVol').value === 'm3' ? inputVal * 1000 : inputVal;
             }
-            const kgPerLiter = 25 / 12;
-            totalMortarKg = totalVolume * kgPerLiter;
-            infoText = "Calcul basé sur un rendement de 12 Litres de béton par sac de 25kg.";
+            totalMortarKg = totalVolume * (25/12);
+            infoText = "Calcul basé sur un rendement de 12 Litres par sac.";
             document.getElementById('brick-result-line').style.display = 'none';
-            showConsom = false; 
         } 
         else {
             const catKey = categorySelect.value;
             const litersPerKg = 16.34 / 25; 
-
             if (currentMortarMode === 'surface') {
-                if (!catKey) { alert("Veuillez sélectionner une gamme."); return; }
-                const refValue = referenceSelect.value;
-                if (refValue === "") { alert("Veuillez sélectionner une référence."); return; }
-
-                let surfaceRaw = document.getElementById('surface').value.replace(',', '.');
-                const surface = parseFloat(surfaceRaw);
+                if (!catKey || referenceSelect.value === "") { alert("Sélectionnez gamme/référence."); return; }
+                const surface = parseFloat(document.getElementById('surface').value);
                 const isDouble = document.getElementById('doubleWall').checked;
                 const targetJoint = parseFloat(jointInput.value);
-
-                if (isNaN(surface) || surface <= 0) { alert("Surface invalide."); return; }
-
                 const catData = db[catKey];
-                let calculatedWeightM2 = 0;
-                let calculatedBricksM2 = 0;
+                let calcWeightM2 = 0, calcBricksM2 = 0;
 
-                if (refValue !== "custom") {
-                    const product = catData.items[refValue];
-                    const refJ = product.jointRef / 1000;
-                    const newJ = targetJoint / 1000;
-
-                    let ratio = targetJoint / product.jointRef; // Fallback par défaut
-                    let finalBricksM2 = product.bricksM2;
-
-                    const dimsRaw = product.name.match(/[\d,]+/g);
-                    if (dimsRaw && dimsRaw.length >= 2) {
-                        const dims = dimsRaw.map(d => parseFloat(d.replace(',', '.')) / 100);
-
-                        let bestDiff = Infinity;
-                        let finalL = 0, finalH = 0;
-
-                        // 1. Identifier les dimensions de la face visible
-                        for (let i = 0; i < dims.length; i++) {
-                            for (let j = i + 1; j < dims.length; j++) {
-                                let testBricks = 1 / ((dims[i] + refJ) * (dims[j] + refJ));
-                                let diff = Math.abs(testBricks - product.bricksM2);
-                                if (diff < bestDiff) {
-                                    bestDiff = diff;
-                                    finalL = dims[i];
-                                    finalH = dims[j];
-                                }
-                            }
-                        }
-
-                        if (finalL > 0 && finalH > 0) {
-                            // 2. Calculer l'ancienne et la nouvelle surface nette du joint
-                            const oldJointArea = 1 - (product.bricksM2 * finalL * finalH);
-                            finalBricksM2 = 1 / ((finalL + newJ) * (finalH + newJ));
-                            const newJointArea = 1 - (finalBricksM2 * finalL * finalH);
-
-                            // 3. Le multiplicateur exact est le rapport entre les deux surfaces
-                            if (oldJointArea > 0) {
-                                ratio = newJointArea / oldJointArea;
-                            }
-                        }
-                    }
-
-                    let baseWeight = product.weightM2;
-                    
-                    if (isDouble) {
-                        if (product.weightDoubleM2) {
-                            baseWeight = product.weightDoubleM2;
-                        } else {
-                            baseWeight = product.weightM2 * 2;
-                        }
-                    }
-
-                    calculatedWeightM2 = Math.ceil(baseWeight * ratio);
-                    calculatedBricksM2 = finalBricksM2;
-
+                if (referenceSelect.value !== "custom") {
+                    const product = catData.items[referenceSelect.value];
+                    let ratio = targetJoint / product.jointRef;
+                    calcBricksM2 = product.bricksM2;
+                    let baseWeight = isDouble ? (product.weightDoubleM2 || product.weightM2*2) : product.weightM2;
+                    calcWeightM2 = Math.ceil(baseWeight * ratio);
                 } else {
-                    const L_mm = parseFloat(document.getElementById('custL').value);
-                    const W_mm = parseFloat(document.getElementById('custW').value);
-                    const H_mm = parseFloat(document.getElementById('custH').value);
-                    if (!L_mm || !W_mm || !H_mm) { alert("Remplissez les dimensions."); return; }
-
-                    const L = L_mm / 1000; const H = H_mm / 1000; const W = W_mm / 1000; const J = targetJoint / 1000;
-                    calculatedBricksM2 = 1 / ((L + J) * (H + J));
-                    const surfJoint = 1 - (calculatedBricksM2 * L * H);
-                    const volJoint = surfJoint * W;
-                    const customLossFactor = 1.15; // 15% de perte sur la saisie manuelle
-                    calculatedWeightM2 = Math.ceil(volJoint * catData.densityFactor * customLossFactor);
-                    
-                    if (isDouble) calculatedWeightM2 *= 2;
+                    const L=parseFloat(document.getElementById('custL').value)/1000, W=parseFloat(document.getElementById('custW').value)/1000, H=parseFloat(document.getElementById('custH').value)/1000, J=targetJoint/1000;
+                    calcBricksM2 = 1 / ((L + J) * (H + J));
+                    calcWeightM2 = Math.ceil((1 - (calcBricksM2*L*H)) * W * catData.densityFactor * 1.15);
+                    if (isDouble) calcWeightM2 *= 2;
                 }
-
-                totalMortarKg = calculatedWeightM2 * surface;
-                totalBricks = Math.ceil(calculatedBricksM2 * surface * (isDouble ? 2 : 1));
+                totalMortarKg = calcWeightM2 * surface;
+                totalBricks = Math.ceil(calcBricksM2 * surface * (isDouble ? 2 : 1));
                 totalVolume = totalMortarKg * litersPerKg;
-                
-                consumptionPerM2 = calculatedWeightM2;
-                showConsom = true;
-
-                infoText = `Calcul basé sur un joint de <strong>${targetJoint}</strong>mm.<br>Ratio géométrique et coefficient de perte appliqués.`;
+                consumptionPerM2 = calcWeightM2; showConsom = true;
+                infoText = `Joint de ${targetJoint}mm. Ratio et perte appliqués.`;
                 document.getElementById('brick-result-line').style.display = 'block';
-
             } else {
-                let volumeRaw = document.getElementById('inputMortarVol').value.replace(',', '.');
-                let unit = document.getElementById('unitMortarVol').value;
-                const inputVolume = parseFloat(volumeRaw);
-                if (isNaN(inputVolume) || inputVolume <= 0) { alert("Volume invalide."); return; }
-                if (unit === 'm3') totalVolume = inputVolume * 1000;
-                else totalVolume = inputVolume;
+                let vol = parseFloat(document.getElementById('inputMortarVol').value);
+                totalVolume = document.getElementById('unitMortarVol').value === 'm3' ? vol * 1000 : vol;
                 totalMortarKg = totalVolume / litersPerKg;
-                infoText = `Calcul inversé basé sur le volume fourni.<br>Ratio: 1 Sac (25kg) ≈ 16.34L.`;
+                infoText = `Calcul sur volume brut. 1 Sac ≈ 16.34L.`;
                 document.getElementById('brick-result-line').style.display = 'none';
-                showConsom = false;
             }
         }
 
-        const bigBagSol = solveBigBags(totalMortarKg, maxBagSize);
-        const palletSol = solvePallets(totalMortarKg);
-
+        const bbSol = solveBigBags(totalMortarKg, maxBagSize), palletSol = solvePallets(totalMortarKg);
         document.getElementById('totalWeight').innerText = Math.ceil(totalMortarKg).toLocaleString('fr-FR');
         document.getElementById('totalVolume').innerText = Math.round(totalVolume).toLocaleString('fr-FR');
-        
-        const consomLine = document.getElementById('consumption-result-line');
+        const cLine = document.getElementById('consumption-result-line');
         if (showConsom) {
             document.getElementById('consomVal').innerText = consumptionPerM2.toLocaleString('fr-FR', {maximumFractionDigits: 2});
-            consomLine.style.display = 'block';
-        } else {
-            consomLine.style.display = 'none';
-        }
+            cLine.style.display = 'block';
+        } else cLine.style.display = 'none';
 
-        if (currentMainType === 'mortar' && currentMortarMode === 'surface') {
-            document.getElementById('totalBricks').innerText = totalBricks.toLocaleString('fr-FR');
-        }
-
-        const bbList = document.getElementById('bigBagList');
-        bbList.innerHTML = "";
+        if (currentMainType === 'mortar' && currentMortarMode === 'surface') document.getElementById('totalBricks').innerText = totalBricks.toLocaleString('fr-FR');
+        const bbList = document.getElementById('bigBagList'); bbList.innerHTML = "";
         let hasBB = false;
-        const addBBLine = (count, size) => {
-            if (count > 0) {
-                hasBB = true;
-                bbList.innerHTML += `<li><span>Big Bag <strong>${size}kg</strong></span> <span class="highlight-number">${count}</span></li>`;
-            }
-        };
-        addBBLine(bigBagSol[1400], 1400);
-        addBBLine(bigBagSol[1000], 1000);
-        addBBLine(bigBagSol[700], 700);
-        if(!hasBB) bbList.innerHTML = "<li><span style='color:#999'>Poids insuffisant pour du vrac</span></li>";
-
+        [1400, 1000, 700].forEach(sz => {
+            if(bbSol[sz]>0){ hasBB=true; bbList.innerHTML += `<li><span>Big Bag <strong>${sz}kg</strong></span> <span class="highlight-number">${bbSol[sz]}</span></li>`; }
+        });
+        if(!hasBB) bbList.innerHTML = "<li><span style='color:#999'>Poids insuffisant</span></li>";
         document.getElementById('nbPallets').innerText = palletSol.pallets;
         document.getElementById('nbExtraBags').innerText = palletSol.extraBags;
         document.getElementById('totalBagsCount').innerText = palletSol.totalBags;
         document.getElementById('tech-info-text').innerHTML = infoText;
-
-        resultCard.style.display = 'block';
-        resultCard.scrollIntoView({ behavior: 'smooth' });
+        resultCard.style.display = 'block'; resultCard.scrollIntoView({ behavior: 'smooth' });
     }
-    
-    // ---------------------------------------------------------
-    // 5. FONCTION MAIL DEVIS
-    // ---------------------------------------------------------
+
     function sendQuoteEmail() {
         const company = document.getElementById('userCompany').value.trim();
         const contact = document.getElementById('userContact').value.trim();
         const dealer = document.getElementById('userDealer').value.trim();
         const color = document.getElementById('userColor').value.trim(); 
         const refChantier = document.getElementById('userRef').value.trim();
-
-        if (!company || !contact || !dealer || !color || !refChantier) {
-            alert("Veuillez remplir tous les champs obligatoires (Entreprise, Contact, Négociant, Couleur, Référence Chantier) !");
-            document.querySelector('.contact-form-wrapper').scrollIntoView({behavior: 'smooth'});
-            return; 
-        }
+        if (!company || !contact || !dealer || !color || !refChantier) { alert("Remplissez tout !"); return; }
 
         const totalWeightText = document.getElementById('totalWeight').innerText; 
-        const totalVolume = document.getElementById('totalVolume').innerText;
         const totalPallets = document.getElementById('nbPallets').innerText;
         const totalBags = document.getElementById('totalBagsCount').innerText;
-        
-        let weightVal = parseFloat(totalWeightText.replace(/\s/g, '').replace(',', '.'));
-        let maxBB = 1400;
-        if(currentMainType === 'joint' && document.getElementById('jointProductType').value === 'easyjoint') {
-            maxBB = 1000;
-        }
-
-        let bbSol = solveBigBags(weightVal, maxBB);
-        let bbDetails = "";
-        let hasBB = false;
-        if(bbSol[1400] > 0) { bbDetails += `- ${bbSol[1400]} Big Bag(s) de 1400kg\n`; hasBB = true; }
-        if(bbSol[1000] > 0) { bbDetails += `- ${bbSol[1000]} Big Bag(s) de 1000kg\n`; hasBB = true; }
-        if(bbSol[700] > 0)  { bbDetails += `- ${bbSol[700]} Big Bag(s) de 700kg\n`; hasBB = true; }
-        if(!hasBB) bbDetails = "- Quantité insuffisante pour du vrac\n";
-
-        let productDetails = "";
-        let subjectRef = `Demande de prix - ${company}`; 
-
-        if(currentMainType === 'concrete') {
-            subjectRef += " - Tradi Béton";
-            productDetails = "Produit : Tradi Béton (Sac 25kg)\n";
-            if(currentConcreteMode === 'dims') {
-                const L = document.getElementById('concL').value;
-                const W = document.getElementById('concW').value;
-                const H = document.getElementById('concH').value;
-                productDetails += `Dimensions Dalle : ${L} x ${W} x ${H} cm\n`;
-            } else {
-                productDetails += `Volume souhaité : ${document.getElementById('inputConcreteVol').value} ${document.getElementById('unitConcreteVol').value}\n`;
-            }
-
-        } else if(currentMainType === 'joint') {
-            const productType = document.getElementById('jointProductType').value;
-            const formattedProduct = (productType === 'biajoint') ? 'BIAJOINT' : 'EASY JOINT';
-            const surface = document.getElementById('jointSurface').value;
-            
-            subjectRef += ` - ${formattedProduct}`;
-            productDetails = `Produit : ${formattedProduct}\n`;
-            productDetails += `Couleur demandée : ${color.toUpperCase()}\n`;
-            productDetails += `Surface à jointer : ${surface} m²\n`;
-            productDetails += `Dimensions plaquette : ${document.getElementById('jointL').value}x${document.getElementById('jointH').value} mm\n`;
-            productDetails += `Joint : ${document.getElementById('jointW').value}mm (Largeur) x ${document.getElementById('jointD').value}mm (Profondeur)\n`;
-
-        } else {
-            const cat = categorySelect.value;
-            const refIndex = referenceSelect.value;
-            let refName = "Inconnue";
-            
-            if(refIndex === "custom") {
-                refName = "Sur mesure";
-            } else if (cat && db[cat] && db[cat].items[refIndex]) {
-                refName = db[cat].items[refIndex].name;
-            }
-
-            const surface = document.getElementById('surface').value;
-            const isCoated = document.getElementById('isCoated').checked;
-            const prodName = isCoated ? "BIAMORTIER M10 (Gamme Coated)" : "BIAMORTIER M5 (Standard)";
-
-            subjectRef += ` - ${prodName}`;
-            productDetails = `Produit : ${prodName}\n`;
-            productDetails += `Couleur demandée : ${color.toUpperCase()}\n`;
-            productDetails += `Gamme brique : ${cat}\n`;
-            productDetails += `Format Brique : ${refName}\n`;
-            if(currentMortarMode === 'surface') {
-                productDetails += `Surface mur : ${surface} m²\n`;
-            } else {
-                productDetails += `Volume brut demandé.\n`;
-            }
-        }
-
-        const emailBody = `Bonjour BIALLAIS Industries,\n\n` +
-            `Voici une demande de prix pour le chantier suivant :\n\n` +
-            `==============================\n` +
-            `COORDONNÉES CLIENT\n` +
-            `==============================\n` +
-            `Entreprise : ${company}\n` +
-            `Contact : ${contact}\n` +
-            `Négociant souhaité : ${dealer}\n` +
-            `Référence Chantier : ${refChantier}\n\n` +
-            `==============================\n` +
-            `DÉTAILS TECHNIQUES\n` +
-            `==============================\n` +
-            `${productDetails}\n` +
-            `--- QUANTITÉS ESTIMÉES ---\n` +
-            `Poids Total : ${totalWeightText} kg\n` +
-            `(Volume approx. : ${totalVolume} Litres)\n\n` +
-            `==============================\n` +
-            `CONDITIONNEMENT SOUHAITÉ\n` +
-            `==============================\n` +
-            `Merci de chiffrer l'une ou les deux options :\n\n` +
-            `OPTION A : CONDITIONNEMENT SAC (25kg)\n` +
-            `- ${totalPallets} Palette(s)\n` +
-            `- ${document.getElementById('nbExtraBags').innerText} Sac(s) de reliquat\n` +
-            `(Soit un total de ${totalBags} sacs)\n\n` +
-            `OPTION B : CONDITIONNEMENT VRAC (Big Bag)\n` +
-            `${bbDetails}\n` +
-            `Merci de me recontacter pour finaliser cette demande.\n\n` +
-            `Cordialement,`;
-
-        const destination = "contact@biallais.fr"; 
-        const mailtoLink = `mailto:${destination}?subject=${encodeURIComponent(subjectRef)}&body=${encodeURIComponent(emailBody)}`;
-        
-        window.location.href = mailtoLink;
+        const body = `Demande de devis - ${company}\nContact: ${contact}\nNégociant: ${dealer}\nChantier: ${refChantier}\nCouleur: ${color}\nTotal: ${totalWeightText}kg (${totalPallets} palettes, ${totalBags} sacs total).`;
+        window.location.href = `mailto:contact@biallais.fr?subject=Devis ${company}&body=${encodeURIComponent(body)}`;
     }
 </script>
-
 </body>
 </html>
