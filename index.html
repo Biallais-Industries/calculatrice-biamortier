@@ -856,7 +856,8 @@
             </div>
 
             <div id="production-warning">
-                ⚠️ Attention : La production de ce produit (ou de cette teinte) exige un minimum de commande de 1 Big Bag (1400 kg) ou 112 sacs (2 palettes). Votre estimation actuelle est inférieure à ce seuil.
+                ⚠️ <strong>Attention :</strong> La production de ce produit (ou de cette teinte) exige un minimum de commande de 1 Big Bag (1400 kg) ou 112 sacs (2 palettes). Votre estimation actuelle est inférieure à ce seuil.<br><br>
+                💡 <em>Une possibilité en sac neutre + dose de colorant pour les petites quantités reste néanmoins possible. Veuillez nous contacter.</em>
             </div>
 
             <div class="logistics-container">
@@ -1236,7 +1237,7 @@
         }
     }
 
-    // --- NOUVELLE FONCTION POUR VÉRIFIER LE MINIMUM DE PRODUCTION ---
+    // --- FONCTION POUR VÉRIFIER LE MINIMUM DE PRODUCTION ---
     function checkMinimumProduction() {
         const warningDiv = document.getElementById('production-warning');
         const colorSelect = document.getElementById('userColor');
