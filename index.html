@@ -581,7 +581,6 @@
         </div>
         <div class="header-text">
             <h1>Calculatrice Matériaux</h1>
-            <p>Guide technique & logistique - V1 (Lancement 02/2026)</p>
         </div>
     </header>
 
@@ -978,9 +977,9 @@
                 { name: "4x19x39", weightM2: 6, bricksM2: 12.50, loss: "30", jointRef: 10 },
                 { name: "9x19x24", weightM2: 65, bricksM2: 40.00, loss: "80", jointRef: 10 },
                 { name: "6x22x22", weightM2: 110, bricksM2: 62.11, loss: "80", jointRef: 10 },
+                { name: "6x11x44", weightM2: 36, weightDoubleM2: 86, bricksM2: 32, loss: "30", jointRef: 10 },
                 { name: "6x10,5x22", weightM2: 38, weightDoubleM2: 90, bricksM2: 62.11, loss: "30", jointRef: 10 },
-                { name: "5,6x9,3x19", weightM2: 35, weightDoubleM2: 84, bricksM2: 75.76, loss: "30", jointRef: 10 },
-                { name: "6x11x44", weightM2: 36, bricksM2: 32, loss: "30", jointRef: 10 }
+                { name: "5,6x9,3x19", weightM2: 35, weightDoubleM2: 84, bricksM2: 75.76, loss: "30", jointRef: 10 }
             ],
             allowCustom: false 
         },
@@ -1368,7 +1367,7 @@
         const type = document.getElementById('jointProductType').value;
         document.getElementById('joint-usage-desc').innerHTML = type === 'biajoint' ? 
             "<strong>Usage :</strong> Rejointoiement traditionnel à la main." : 
-            "<strong>Usage :</strong> Rejointoiement à la poche à douille ou à la machine Easyfast.";
+            "<strong>Usage :</strong> Rejointoiement à la poche à douille ou à la machine à rejointoyer.";
     }
 
     function solveBigBags(weight, maxBagSize = 1400) {
