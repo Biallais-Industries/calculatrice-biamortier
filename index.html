@@ -570,6 +570,21 @@
             transition: background-color 0.3s ease, transform 0.2s ease;
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
+
+        /* Styles pour l'alerte de production */
+        #production-warning {
+            display: none;
+            background-color: #fffaf0;
+            color: #c05621;
+            padding: 15px 20px;
+            margin: 20px 25px 0 25px;
+            border: 1px solid #fbd38d;
+            border-radius: 12px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            text-align: left;
+            box-shadow: 0 2px 5px rgba(237, 137, 54, 0.1);
+        }
     </style>
 </head>
 <body>
@@ -840,6 +855,10 @@
                 </div>
             </div>
 
+            <div id="production-warning">
+                ⚠️ Attention : La production de ce produit (ou de cette teinte) exige un minimum de commande de 1 Big Bag (1400 kg) ou 112 sacs (2 palettes). Votre estimation actuelle est inférieure à ce seuil.
+            </div>
+
             <div class="logistics-container">
                 <div class="logistics-option">
                     <div class="logistics-text">
@@ -903,7 +922,7 @@
                     <div class="form-group" style="margin-bottom:15px;">
                         <label for="userColor" style="color:var(--accent-color);">Couleur de joint souhaitée selon malette échantillon <span class="required-star">*</span></label>
                         <div style="display: flex; gap: 15px; align-items: center;">
-                            <select id="userColor" onchange="updateColorPreview()" style="flex: 1; padding:10px; font-size:0.9rem; border-color:var(--accent-color); border-radius: 12px; background-color: #fff; cursor: pointer;">
+                            <select id="userColor" onchange="updateColorPreview(); checkMinimumProduction();" style="flex: 1; padding:10px; font-size:0.9rem; border-color:var(--accent-color); border-radius: 12px; background-color: #fff; cursor: pointer;">
                                 <option value="">-- Sélectionnez une couleur --</option>
                             </select>
                             <div id="colorPreview" class="color-preview-circle"></div>
@@ -1217,6 +1236,39 @@
         }
     }
 
+    // --- NOUVELLE FONCTION POUR VÉRIFIER LE MINIMUM DE PRODUCTION ---
+    function checkMinimumProduction() {
+        const warningDiv = document.getElementById('production-warning');
+        const colorSelect = document.getElementById('userColor');
+        const selectedColor = colorSelect.value;
+        const standardColors = ["SUPER BLANC", "BLANC", "TON PIERRE", "GRIS CLAIR"];
+        
+        let isRestricted = false;
+        
+        // Le produit est-il soumis à restriction ?
+        if (currentMainType === 'joint') {
+            isRestricted = true; // Tous les produits joint
+        } else if (currentMainType === 'mortar') {
+            // Uniquement si c'est du mortier ET qu'une couleur non-standard a été choisie
+            if (selectedColor && !standardColors.includes(selectedColor)) {
+                isRestricted = true;
+            }
+        }
+        
+        // La quantité commandée est-elle suffisante ? (1400 kg minimum pour le big bag)
+        const totalWeightText = document.getElementById('totalWeight').innerText.replace(/\s/g, '');
+        const totalWeight = parseFloat(totalWeightText) || 0;
+        const totalBags = parseInt(document.getElementById('totalBagsCount').innerText) || 0;
+        
+        const meetsMinimum = (totalWeight >= 1400) || (totalBags >= 112);
+        
+        if (isRestricted && !meetsMinimum) {
+            warningDiv.style.display = 'block';
+        } else {
+            warningDiv.style.display = 'none';
+        }
+    }
+
     function switchMainType(type) {
         currentMainType = type;
         resultCard.style.display = 'none';
@@ -1488,7 +1540,13 @@
         document.getElementById('nbExtraBags').innerText = palletSol.extraBags;
         document.getElementById('totalBagsCount').innerText = palletSol.totalBags;
         document.getElementById('tech-info-text').innerHTML = infoText;
-        resultCard.style.display = 'block'; resultCard.scrollIntoView({ behavior: 'smooth' });
+        
+        resultCard.style.display = 'block'; 
+        
+        // Appel de la vérification de production une fois les données injectées dans le DOM
+        checkMinimumProduction();
+        
+        resultCard.scrollIntoView({ behavior: 'smooth' });
     }
 
     function sendQuoteEmail() {
