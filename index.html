@@ -915,14 +915,11 @@
                         <input type="text" id="userDealer" placeholder="Ex: Négociant de votre choix..." style="padding:10px; font-size:0.9rem;">
                     </div>
 
-                    <div class="form-group" style="margin-bottom:15px;">
+                    <div class="form-group" id="colorSelectionGroup" style="margin-bottom:15px;">
                         <label for="userColor" style="color:var(--accent-color);">Couleur de joint souhaitée selon malette échantillon <span class="required-star">*</span></label>
-                        <div style="display: flex; gap: 15px; align-items: center;">
-                            <select id="userColor" onchange="updateColorPreview(); checkMinimumProduction();" style="flex: 1; padding:10px; font-size:0.9rem; border-color:var(--accent-color); border-radius: 12px; background-color: #fff; cursor: pointer;">
-                                <option value="">-- Sélectionnez une couleur --</option>
-                            </select>
-                            <div id="colorPreview" class="color-preview-circle"></div>
-                        </div>
+                        <select id="userColor" onchange="updateColorPreview(); checkMinimumProduction();" style="width: 100%; padding:10px; font-size:0.9rem; border: 2px solid var(--accent-color); border-radius: 12px; background-color: #fff; cursor: pointer; transition: all 0.3s ease;">
+                            <option value="">-- Sélectionnez une couleur --</option>
+                        </select>
                     </div>
                     
                     <div id="production-warning">
@@ -1064,7 +1061,6 @@
         }
     };
 
-    // NOUVEAU NUANCIER COMPLET (Sans LCH/RVB)
     const NUANCIER_COMPLET = [
         { cat: "Standards", name: "SUPER BLANC" },
         { cat: "Standards", name: "BLANC" },
@@ -1134,7 +1130,6 @@
         { cat: "Lie de vin", name: "GR416N84" }
     ];
 
-    // --- FONCTIONS DE PERSISTANCE LOCALE ---
     function setupLocalPersistence() {
         FIELDS_TO_SAVE.forEach(id => {
             const element = document.getElementById(id);
@@ -1190,12 +1185,17 @@
         }
         const colorSelect = document.getElementById('userColor');
         const categories = [...new Set(NUANCIER_COMPLET.map(item => item.cat))];
+        
         categories.forEach(cat => {
             let optgroup = document.createElement('optgroup');
             optgroup.label = cat;
-            NUANCIER_COMPLET.filter(item => item.cat === cat).forEach(couleur => {
+            
+            let couleursTriees = NUANCIER_COMPLET
+                .filter(item => item.cat === cat)
+                .sort((a, b) => a.name.localeCompare(b.name));
+            
+            couleursTriees.forEach(couleur => {
                 let option = new Option(couleur.name, couleur.name);
-                // Utilisation du nom de la couleur pour définir le fichier image
                 option.dataset.image = couleur.name + ".jpg"; 
                 optgroup.appendChild(option);
             });
@@ -1205,25 +1205,23 @@
 
     function updateColorPreview() {
         const select = document.getElementById('userColor');
-        const preview = document.getElementById('colorPreview');
         const selectedOption = select.options[select.selectedIndex];
         
-        if (selectedOption.value && selectedOption.dataset.image) {
-            preview.style.backgroundImage = `url('${selectedOption.dataset.image}')`;
-            preview.style.backgroundSize = "cover";
-            preview.style.backgroundPosition = "center";
-            preview.style.backgroundColor = "transparent";
-            preview.style.borderColor = "transparent";
-            preview.style.transform = "scale(1.05)";
+        if (selectedOption && selectedOption.value && selectedOption.dataset.image) {
+            select.style.backgroundImage = `url('${selectedOption.dataset.image}')`;
+            select.style.backgroundSize = "cover";
+            select.style.backgroundPosition = "center";
+            select.style.color = "#2d3748";
+            select.style.textShadow = "0 0 5px rgba(255, 255, 255, 0.9), 0 0 10px rgba(255, 255, 255, 1)";
+            select.style.fontWeight = "800";
         } else {
-            preview.style.backgroundImage = 'none';
-            preview.style.backgroundColor = 'transparent';
-            preview.style.borderColor = "#e2e8f0";
-            preview.style.transform = "scale(1)";
+            select.style.backgroundImage = 'none';
+            select.style.color = "#2d3748";
+            select.style.textShadow = "none";
+            select.style.fontWeight = "normal";
         }
     }
 
-    // --- FONCTION POUR VÉRIFIER LE MINIMUM DE PRODUCTION ---
     function checkMinimumProduction() {
         const warningDiv = document.getElementById('production-warning');
         const colorSelect = document.getElementById('userColor');
@@ -1232,17 +1230,14 @@
         
         let isRestricted = false;
         
-        // Le produit est-il soumis à restriction ?
         if (currentMainType === 'joint') {
-            isRestricted = true; // Tous les produits joint
+            isRestricted = true; 
         } else if (currentMainType === 'mortar') {
-            // Uniquement si c'est du mortier ET qu'une couleur non-standard a été choisie
             if (selectedColor && !standardColors.includes(selectedColor)) {
                 isRestricted = true;
             }
         }
         
-        // La quantité commandée est-elle suffisante ? (1400 kg minimum pour le big bag)
         const totalWeightText = document.getElementById('totalWeight').innerText.replace(/\s/g, '');
         const totalWeight = parseFloat(totalWeightText) || 0;
         const totalBags = parseInt(document.getElementById('totalBagsCount').innerText) || 0;
@@ -1256,6 +1251,7 @@
         }
     }
 
+    // MODIFICATION : Masquage de la couleur quand le béton est sélectionné
     function switchMainType(type) {
         currentMainType = type;
         resultCard.style.display = 'none';
@@ -1267,22 +1263,30 @@
         jointSection.classList.add('hidden-field');
         btnAction.classList.remove('concrete-mode', 'joint-mode');
 
+        const colorGroup = document.getElementById('colorSelectionGroup');
+
         if (type === 'mortar') {
             btnMainMortar.classList.add('active');
             mortarSection.classList.remove('hidden-field');
             btnAction.innerText = "CALCULER MA COMMANDE";
+            colorGroup.style.display = 'block';
             updateReferences(); 
         } else if (type === 'concrete') {
             btnMainConcrete.classList.add('active-concrete');
             concreteSection.classList.remove('hidden-field');
             btnAction.classList.add('concrete-mode');
             btnAction.innerText = "CALCULER BÉTON";
+            // On cache la couleur et on la réinitialise pour le béton
+            colorGroup.style.display = 'none';
+            document.getElementById('userColor').value = "";
+            updateColorPreview();
             updateBagVisual(); 
         } else {
             btnMainJoint.classList.add('active-joint');
             jointSection.classList.remove('hidden-field');
             btnAction.classList.add('joint-mode');
             btnAction.innerText = "CALCULER JOINT";
+            colorGroup.style.display = 'block';
             updateBagVisual();
         }
     }
@@ -1530,24 +1534,54 @@
         
         resultCard.style.display = 'block'; 
         
-        // Appel de la vérification de production une fois les données injectées dans le DOM
         checkMinimumProduction();
         
         resultCard.scrollIntoView({ behavior: 'smooth' });
     }
 
+    // MODIFICATION : Détermination du produit pour l'e-mail et adaptation de la validation
     function sendQuoteEmail() {
         const company = document.getElementById('userCompany').value.trim();
         const contact = document.getElementById('userContact').value.trim();
         const dealer = document.getElementById('userDealer').value.trim();
         const color = document.getElementById('userColor').value.trim(); 
         const refChantier = document.getElementById('userRef').value.trim();
-        if (!company || !contact || !dealer || !color || !refChantier) { alert("Remplissez tout !"); return; }
+        
+        // Vérification adaptée : la couleur n'est requise que si on n'est pas sur "béton"
+        if (!company || !contact || !dealer || !refChantier || (currentMainType !== 'concrete' && !color)) { 
+            alert("Veuillez remplir tous les champs obligatoires (avec astérisque)."); 
+            return; 
+        }
+
+        // Détermination du produit sélectionné pour l'email
+        let productDetails = "";
+        if (currentMainType === 'mortar') {
+            const isCoated = document.getElementById('isCoated').checked;
+            productDetails = isCoated ? "Mortier (Biamortier M10 - Coated)" : "Mortier (Biamortier Classique)";
+        } else if (currentMainType === 'concrete') {
+            productDetails = "Béton (Tradi Béton)";
+        } else if (currentMainType === 'joint') {
+            const jointSelect = document.getElementById('jointProductType');
+            productDetails = "Joint (" + jointSelect.options[jointSelect.selectedIndex].text + ")";
+        }
 
         const totalWeightText = document.getElementById('totalWeight').innerText; 
         const totalPallets = document.getElementById('nbPallets').innerText;
         const totalBags = document.getElementById('totalBagsCount').innerText;
-        const body = `Demande de devis - ${company}\nContact: ${contact}\nNégociant: ${dealer}\nChantier: ${refChantier}\nCouleur: ${color}\nTotal: ${totalWeightText}kg (${totalPallets} palettes, ${totalBags} sacs total).`;
+        
+        // Construction dynamique du corps du mail
+        let body = `Demande de devis - ${company}\n`;
+        body += `Contact: ${contact}\n`;
+        body += `Négociant: ${dealer}\n`;
+        body += `Chantier: ${refChantier}\n`;
+        body += `Produit souhaité: ${productDetails}\n`;
+        
+        if (currentMainType !== 'concrete') {
+            body += `Couleur: ${color}\n`;
+        }
+        
+        body += `Total: ${totalWeightText}kg (${totalPallets} palettes, ${totalBags} sacs total).`;
+        
         window.location.href = `mailto:contact@biallais.fr?subject=Devis ${company}&body=${encodeURIComponent(body)}`;
     }
 </script>
