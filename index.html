@@ -911,6 +911,11 @@
                     </div>
 
                     <div class="form-group" style="margin-bottom:15px;">
+                        <label for="userPhone">Numéro de téléphone <span class="required-star">*</span></label>
+                        <input type="tel" id="userPhone" placeholder="Ex: 06 12 34 56 78" style="padding:10px; font-size:0.9rem;">
+                    </div>
+
+                    <div class="form-group" style="margin-bottom:15px;">
                         <label for="userDealer">Négociant de matériaux (Souhaité) <span class="required-star">*</span></label>
                         <input type="text" id="userDealer" placeholder="Ex: Négociant de votre choix..." style="padding:10px; font-size:0.9rem;">
                     </div>
@@ -975,7 +980,8 @@
     const IMG_SAC_BIAJOINT = "sac_biajoint.png";
     const IMG_SAC_EASYJOINT = "sac_easyjoint.png";
 
-    const FIELDS_TO_SAVE = ['userCompany', 'userContact', 'userDealer', 'userRef'];
+    // MODIFICATION : Ajout de 'userPhone' pour la sauvegarde locale
+    const FIELDS_TO_SAVE = ['userCompany', 'userContact', 'userPhone', 'userDealer', 'userRef'];
 
     // ---------------------------------------------------------
     // 2. VARIABLES GLOBALES & DATA
@@ -1251,7 +1257,6 @@
         }
     }
 
-    // MODIFICATION : Masquage de la couleur quand le béton est sélectionné
     function switchMainType(type) {
         currentMainType = type;
         resultCard.style.display = 'none';
@@ -1276,7 +1281,6 @@
             concreteSection.classList.remove('hidden-field');
             btnAction.classList.add('concrete-mode');
             btnAction.innerText = "CALCULER BÉTON";
-            // On cache la couleur et on la réinitialise pour le béton
             colorGroup.style.display = 'none';
             document.getElementById('userColor').value = "";
             updateColorPreview();
@@ -1539,21 +1543,20 @@
         resultCard.scrollIntoView({ behavior: 'smooth' });
     }
 
-    // MODIFICATION : Détermination du produit pour l'e-mail et adaptation de la validation
+    // MODIFICATION : Validation et ajout du téléphone dans l'e-mail
     function sendQuoteEmail() {
         const company = document.getElementById('userCompany').value.trim();
         const contact = document.getElementById('userContact').value.trim();
+        const phone = document.getElementById('userPhone').value.trim();
         const dealer = document.getElementById('userDealer').value.trim();
         const color = document.getElementById('userColor').value.trim(); 
         const refChantier = document.getElementById('userRef').value.trim();
         
-        // Vérification adaptée : la couleur n'est requise que si on n'est pas sur "béton"
-        if (!company || !contact || !dealer || !refChantier || (currentMainType !== 'concrete' && !color)) { 
+        if (!company || !contact || !phone || !dealer || !refChantier || (currentMainType !== 'concrete' && !color)) { 
             alert("Veuillez remplir tous les champs obligatoires (avec astérisque)."); 
             return; 
         }
 
-        // Détermination du produit sélectionné pour l'email
         let productDetails = "";
         if (currentMainType === 'mortar') {
             const isCoated = document.getElementById('isCoated').checked;
@@ -1569,9 +1572,9 @@
         const totalPallets = document.getElementById('nbPallets').innerText;
         const totalBags = document.getElementById('totalBagsCount').innerText;
         
-        // Construction dynamique du corps du mail
         let body = `Demande de devis - ${company}\n`;
         body += `Contact: ${contact}\n`;
+        body += `Téléphone: ${phone}\n`;
         body += `Négociant: ${dealer}\n`;
         body += `Chantier: ${refChantier}\n`;
         body += `Produit souhaité: ${productDetails}\n`;
