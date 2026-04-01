@@ -1496,23 +1496,19 @@
                     let baseWeight = isDouble ? (product.weightDoubleM2 || product.weightM2*2) : product.weightM2;
                     calcWeightM2 = Math.ceil(baseWeight * ratio);
                 } else {
-    const L = parseFloat(document.getElementById('custL').value) / 1000;
-    const W = parseFloat(document.getElementById('custW').value) / 1000;
-    const H = parseFloat(document.getElementById('custH').value) / 1000;
-    const J = targetJoint / 1000;
-    
-    calcBricksM2 = 1 / ((L + J) * (H + J));
-    
-    // Récupération du coefficient de perte spécifique à la gamme sélectionnée
-    // On se base sur le premier élément de la gamme pour récupérer la valeur "loss"
-    const categoryLossPercent = parseFloat(catData.items[0].loss) || 15; // Sécurité : 15% par défaut si non trouvé
-    const lossMultiplier = 1 + (categoryLossPercent / 100); 
-    
-    // Calcul avec le bon multiplicateur (ex: 1.35, 2.00, ou 1.75)
-    calcWeightM2 = Math.ceil((1 - (calcBricksM2 * L * H)) * W * catData.densityFactor * lossMultiplier);
-    
-    if (isDouble) calcWeightM2 *= 2;
-}
+                    const L = parseFloat(document.getElementById('custL').value) / 1000;
+                    const W = parseFloat(document.getElementById('custW').value) / 1000;
+                    const H = parseFloat(document.getElementById('custH').value) / 1000;
+                    const J = targetJoint / 1000;
+                    
+                    calcBricksM2 = 1 / ((L + J) * (H + J));
+                    
+                    // Le catData.densityFactor contient DÉJÀ la surconsommation selon le type de brique (pleine=2120, perforée=3150, etc.)
+                    // On retire donc le multiplicateur de perte (* 1.15) pour éviter de compter la perte deux fois.
+                    calcWeightM2 = Math.ceil((1 - (calcBricksM2 * L * H)) * W * catData.densityFactor);
+                    
+                    if (isDouble) calcWeightM2 *= 2;
+                }
                 totalMortarKg = calcWeightM2 * surface;
                 totalBricks = Math.ceil(calcBricksM2 * surface * (isDouble ? 2 : 1));
                 totalVolume = totalMortarKg * litersPerKg;
