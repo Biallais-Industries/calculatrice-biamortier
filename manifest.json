@@ -1,6 +1,6 @@
 {
-  "name": "Calculatrice Biamortier",
-  "short_name": "Biamortier",
+  "name": "Calculatrice Biallais",
+  "short_name": "Calc Biallais",
   "start_url": ".",
   "display": "standalone",
   "theme_color": "#004a99",
