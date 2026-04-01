@@ -1003,7 +1003,7 @@
                 { name: "6x22x22", weightM2: 110, bricksM2: 62.11, loss: "80", jointRef: 10 },
                 { name: "6x11x44", weightM2: 36, weightDoubleM2: 86, bricksM2: 32, loss: "30", jointRef: 10 },
                 { name: "6x10,5x22", weightM2: 38, weightDoubleM2: 90, bricksM2: 62.11, loss: "30", jointRef: 10 },
-                { name: "5,6x9,3x19", weightM2: 35, weightDoubleM2: 84, bricksM2: 75.76, loss: "30", jointRef: 10 }
+                { name: "5,6x9,3x19", weightM2: 35, weightDoubleM2: 86, bricksM2: 75.76, loss: "30", jointRef: 10 }
             ],
             allowCustom: false 
         },
@@ -1030,7 +1030,7 @@
         },
         "TERRE CUITE (Perforées)": {
             items: [
-                { name: "6x10,5x22", weightM2: 69, weightDoubleM2: 163, bricksM2: 59.87, loss: "100", jointRef: 12 },
+                { name: "6x10,5x22", weightM2: 70, weightDoubleM2: 163, bricksM2: 59.87, loss: "100", jointRef: 12 },
                 { name: "6x22x22", weightM2: 145, bricksM2: 59.87, loss: "100", jointRef: 12 },
                 { name: "9x9x29", weightM2: 43, weightDoubleM2: 102, bricksM2: 32.46, loss: "100", jointRef: 12 },
                 { name: "14x9x29", weightM2: 33, weightDoubleM2: 77, bricksM2: 21.78, loss: "100", jointRef: 12 },
@@ -1495,20 +1495,27 @@
                     calcBricksM2 = product.bricksM2;
                     let baseWeight = isDouble ? (product.weightDoubleM2 || product.weightM2*2) : product.weightM2;
                     calcWeightM2 = Math.ceil(baseWeight * ratio);
-                } else {
-                    const L = parseFloat(document.getElementById('custL').value) / 1000;
-                    const W = parseFloat(document.getElementById('custW').value) / 1000;
-                    const H = parseFloat(document.getElementById('custH').value) / 1000;
-                    const J = targetJoint / 1000;
-                    
-                    calcBricksM2 = 1 / ((L + J) * (H + J));
-                    
-                    // Le catData.densityFactor contient DÉJÀ la surconsommation selon le type de brique (pleine=2120, perforée=3150, etc.)
-                    // On retire donc le multiplicateur de perte (* 1.15) pour éviter de compter la perte deux fois.
-                    calcWeightM2 = Math.ceil((1 - (calcBricksM2 * L * H)) * W * catData.densityFactor);
-                    
-                    if (isDouble) calcWeightM2 *= 2;
-                }
+               } else {
+    const L = parseFloat(document.getElementById('custL').value) / 1000;
+    const W = parseFloat(document.getElementById('custW').value) / 1000;
+    const H = parseFloat(document.getElementById('custH').value) / 1000;
+    const J = targetJoint / 1000;
+    
+    calcBricksM2 = 1 / ((L + J) * (H + J));
+    
+    // 1. On calcule d'abord le poids exact pour une seule paroi (sans l'arrondi pour le moment)
+    let singleWallWeight = (1 - (calcBricksM2 * L * H)) * W * catData.densityFactor;
+    
+    if (isDouble) {
+        // 2. Calcul du joint central : Surface d'1m² multipliée par l'épaisseur du joint J
+        let middleJointWeight = 1 * J * catData.densityFactor;
+        
+        // 3. Poids total = (Paroi simple x 2) + le joint de remplissage au milieu
+        calcWeightM2 = Math.round((singleWallWeight * 2) + middleJointWeight);
+    } else {
+        calcWeightM2 = Math.round(singleWallWeight);
+    }
+}
                 totalMortarKg = calcWeightM2 * surface;
                 totalBricks = Math.ceil(calcBricksM2 * surface * (isDouble ? 2 : 1));
                 totalVolume = totalMortarKg * litersPerKg;
