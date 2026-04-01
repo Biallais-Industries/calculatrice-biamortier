@@ -1501,17 +1501,24 @@
                     const H = parseFloat(document.getElementById('custH').value) / 1000;
                     const J = targetJoint / 1000;
                     
+                    // Nombre de briques incluant les joints de façade
                     calcBricksM2 = 1 / ((L + J) * (H + J));
                     
-                    // 1. On calcule d'abord le poids exact pour une seule paroi
+                    // 1. Poids d'une paroi simple (avec densité spécifique brique)
                     let singleWallWeight = (1 - (calcBricksM2 * L * H)) * W * catData.densityFactor;
                     
                     if (isDouble) {
-                        // 2. Calcul du joint central strict de 10 mm (0.010 m) avec masse volumique de 1750 kg/m3
-                        let middleJointWeight = 1 * 0.010 * 1750; // = 17.5 kg
+                        // Arrondi du mur simple avant multiplication pour cohérence catalogue
+                        let singleRounded = Math.round(singleWallWeight);
                         
-                        // 3. Poids total = (Paroi simple x 2) + le joint de remplissage au milieu de 10mm
-                        calcWeightM2 = Math.round((singleWallWeight * 2) + middleJointWeight);
+                        // 2. Calcul du joint intermédiaire selon VOTRE schéma (Tas 1 / Tas 2) :
+                        // On ne remplit que la surface occupée par les briques (L x H)
+                        let surfaceContactReelle = calcBricksM2 * L * H;
+                        
+                        // Volume = Surface réelle x 10mm épaisseur x Densité apparente (1750 kg/m3)
+                        let middleJointWeight = surfaceContactReelle * 0.010 * 1750;
+                        
+                        calcWeightM2 = Math.round((singleRounded * 2) + middleJointWeight);
                     } else {
                         calcWeightM2 = Math.round(singleWallWeight);
                     }
